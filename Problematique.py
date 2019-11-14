@@ -28,14 +28,9 @@ Poles = [
 ########################################################################################################################
 
 def scatter_poles_zeros(poles, zeros):
-    angles = np.linspace(0,2*np.pi,1000)
-    plt.figure()
-    for zero in zeros:
-        plt.scatter(np.real(zero), np.imag(zero), marker="o", c='b')
-    for pole in poles:
-        plt.scatter(np.real(pole), np.imag(pole), marker="x", c='r')
-    plt.plot(np.cos(angles),np.sin(angles))
-    plt.show()
+    b = np.poly(zeros)
+    a = np.poly(poles)
+    zplane.zplane(b,a)
 
 
 def transfer_from_poles_zeros(poles,zeros,show=False):
@@ -64,4 +59,6 @@ def remove_aberrations(poles,zeros, source_image):
 if __name__ == "__main__":
     cleaned = remove_aberrations(Poles,Zeros,'pictures/goldhill_aberrations.npy')
     scipy.misc.imsave('pictures/main/aberrations.jpg', cleaned)
+
+    scatter_poles_zeros(Poles,Zeros)
 
