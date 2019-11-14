@@ -62,4 +62,6 @@ def remove_aberrations(poles,zeros, source_image):
 
 ########################################################################################################################
 if __name__ == "__main__":
-    remove_aberrations(Poles,Zeros,'pictures/goldhill_aberrations.npy')
+    cleaned = remove_aberrations(Poles,Zeros,'pictures/goldhill_aberrations.npy')
+    scipy.misc.imsave('pictures/main/aberrations.jpg', cleaned)
+
