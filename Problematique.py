@@ -24,6 +24,8 @@ Poles = [
     0.8
 ]
 
+# Functions for operations
+########################################################################################################################
 
 def scatter_poles_zeros(poles, zeros):
     angles = np.linspace(0,2*np.pi,1000)
@@ -35,9 +37,6 @@ def scatter_poles_zeros(poles, zeros):
     plt.plot(np.cos(angles),np.sin(angles))
     plt.show()
 
-
-# Designing reverse filter for aberrations
-########################################################################################################################
 
 def transfer_from_poles_zeros(poles,zeros,show=False):
     b = np.poly(zeros)
@@ -60,9 +59,7 @@ def remove_aberrations(poles,zeros, source_image):
     plt.show()
     return output
 
-# Desingning rotating transform matrix
+
 ########################################################################################################################
-
-
 if __name__ == "__main__":
     remove_aberrations(Poles,Zeros,'pictures/goldhill_aberrations.npy')
