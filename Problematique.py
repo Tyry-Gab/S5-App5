@@ -56,8 +56,40 @@ def remove_aberrations(poles,zeros, source_image, show=False):
     return output
 
 
-def rotate_image(source_image):
-    pass
+def rotate_image(source_image, npy=False, show=False):
+    img = np.empty(shape=[0,0])
+    if npy:
+        img = np.load(source_image)
+    else:
+        img = np.array(Image.open(source_image))
+
+    new_img = np.empty(shape=(img.shape[1], img.shape[0]))
+
+    rot_angle = -np.pi/2
+
+    rot_mat = np.array(
+        [[np.cos(rot_angle), -np.sin(rot_angle)],
+        [np.sin(rot_angle), np.cos(rot_angle)]])
+
+    x = 1-img.shape[0]
+    for row in img:
+        y = 0
+        for elem in row:
+            new_index = rot_mat.dot(np.array([[x],[y]]))
+            # For now, only gray picture will be used (we assume input and output are gray)
+            if type(elem) is np.ndarray:
+                elem = elem[0]
+            new_img[int(round(new_index[0][0]))][int(round(new_index[1][0]))] = elem
+            y += 1
+        x += 1
+
+    if show:
+        plt.figure()
+        plt.gray()
+        plt.imshow(new_img)
+        plt.show()
+
+    return new_img
 
 def noise_removal_cheat(source_image, npy=True, show=False):
     if npy:
@@ -90,9 +122,10 @@ def noise_removal_cheat(source_image, npy=True, show=False):
 ########################################################################################################################
 if __name__ == "__main__":
     cleaned = remove_aberrations(Poles,Zeros,'pictures/image_complete.npy', show=True)
-    scipy.misc.imsave('pictures/main/aberrations.jpg', cleaned)
+    scipy.misc.imsave('pictures/main/aberrations.png', cleaned)
 
-    rotate_image()
+    #Returns the np.array of the rotated picture
+    rotate_image('pictures/goldhill_rotate_source.png', show=True)
 
 
 
