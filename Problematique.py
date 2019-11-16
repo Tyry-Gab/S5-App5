@@ -59,6 +59,33 @@ def remove_aberrations(poles,zeros, source_image, show=False):
 def rotate_image(source_image):
     pass
 
+def noise_removal_cheat(source_image, npy=True, show=False):
+    if npy:
+        source_image = np.load(source_image)
+    Fp = 650
+    Fc = 750
+    Fe = 1600
+
+    order, Wn = signal.buttord(Fp/Fe, Fc/Fe, gpass=0.5, gstop=40)
+    print(order)
+    b, a, *_ = signal.butter(order,Wn)
+
+    if show:
+        plt.figure()
+        x, y = signal.freqz(b, a)
+        plt.plot(x, 20 * np.log10(abs(y)))
+        plt.show()
+
+    output = signal.lfilter(b, a, source_image)
+
+    if show:
+        plt.figure()
+        plt.figure()
+        plt.imshow(output, cmap='gray')
+        plt.show()
+    return output
+
+
 
 ########################################################################################################################
 if __name__ == "__main__":
