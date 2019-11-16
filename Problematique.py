@@ -45,20 +45,28 @@ def transfer_from_poles_zeros(poles,zeros,show=False):
     return b,a
 
 
-def remove_aberrations(poles,zeros, source_image):
+def remove_aberrations(poles,zeros, source_image, show=False):
     aberration = np.load(source_image)
     b,a = transfer_from_poles_zeros(poles,zeros)
-    plt.figure()
-    output=signal.lfilter(a, b, aberration)
-    plt.imshow(output,cmap='gray')
-    plt.show()
+    output = signal.lfilter(a, b, aberration)
+    if show:
+        plt.figure()
+        plt.imshow(output,cmap='gray')
+        plt.show()
     return output
+
+
+def rotate_image(source_image):
+    pass
 
 
 ########################################################################################################################
 if __name__ == "__main__":
-    cleaned = remove_aberrations(Poles,Zeros,'pictures/goldhill_aberrations.npy')
+    cleaned = remove_aberrations(Poles,Zeros,'pictures/image_complete.npy', show=True)
     scipy.misc.imsave('pictures/main/aberrations.jpg', cleaned)
 
-    scatter_poles_zeros(Poles,Zeros)
+    rotate_image()
+
+
+
 
