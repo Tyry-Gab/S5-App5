@@ -91,6 +91,49 @@ def rotate_image(source_image, npy=False, show=False):
 
     return new_img
 
+
+def noise_removal_bilinear(source_image, npy=True, show=False):
+    if npy:
+        source_image = np.load(source_image)
+    butter_order = 2
+    Fp = 650
+    Fc = 750
+    Fe = 1600
+    T = 1/Fe
+
+    wc = Fe*np.tan(np.pi*Fp/Fe)
+
+    b = [
+        T**2*wc**2,
+        2*T**2*wc**2,
+        T**2*wc**2
+    ]
+    a = [
+        (4 + 2*np.sqrt(2)*T*wc + T**2*wc**2),
+        (-8 + T**2*wc**2),
+        (4 -np.sqrt(2)*2*T*wc + T**2*wc**2)
+    ]
+    a = np.asarray(a)
+    b = np.asarray(b)
+    if show:
+        plt.figure()
+        x,y = signal.freqz(b,a)
+        plt.plot(x, 20*np.log10(abs(y)))
+        plt.show()
+        print(a)
+        print(b)
+        zplane.zplane(b,a)
+
+    output = signal.lfilter(b, a, source_image)
+
+    if show:
+        plt.figure()
+        plt.figure()
+        plt.imshow(output, cmap='gray')
+        plt.show()
+    return output
+
+
 def noise_removal_cheat(source_image, npy=True, show=False):
     if npy:
         source_image = np.load(source_image)
@@ -121,11 +164,20 @@ def noise_removal_cheat(source_image, npy=True, show=False):
 
 ########################################################################################################################
 if __name__ == "__main__":
-    cleaned = remove_aberrations(Poles,Zeros,'pictures/image_complete.npy', show=True)
-    scipy.misc.imsave('pictures/main/aberrations.png', cleaned)
 
+    cleaned = remove_aberrations(Poles,Zeros,'pictures/goldhill_aberrations.npy', show=True)
+    scipy.misc.imsave('pictures/main/aberrations.jpg', cleaned)
+
+    noise_bilinear = noise_removal_bilinear('pictures/goldhill_bruit.npy', show=True)
+    noise_cheat = noise_removal_cheat(cleaned, npy=False, show=True)
     #Returns the np.array of the rotated picture
     rotate_image('pictures/goldhill_rotate_source.png', show=True)
+
+
+    scipy.misc.imsave('pictures/main/noise.jpg', noise)
+
+    rotate_image(None)
+
 
 
 
