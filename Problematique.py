@@ -142,8 +142,8 @@ def noise_removal_cheat(source_image, npy=True, show=False):
     Fe = 1600
 
     order, Wn = signal.buttord(Fp/Fe, Fc/Fe, gpass=0.5, gstop=40)
-    print(order)
-    b, a, *_ = signal.butter(order,Wn)
+    order = 2
+    b, a, *_ = signal.butter(order, Wn)
 
     if show:
         plt.figure()
