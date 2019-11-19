@@ -4,9 +4,9 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 from scipy import signal
 import zplane
-from PIL import Image
 import scipy.misc
 import imageio
+from PIL import Image
 
 
 # Getting poles and zeros from aberrations transfer function
@@ -54,8 +54,10 @@ def remove_aberrations(poles,zeros, source_image, npy=False, show=False):
     output = signal.lfilter(a, b, source_image)
     if show:
         plt.figure()
+        plt.title('Image sans aberrations')
         plt.imshow(output,cmap='gray')
         plt.show()
+        zplane.zplane(b,a)
     return output
 
 
@@ -120,13 +122,15 @@ def noise_removal_bilinear(source_image, npy=True, show=False):
     ]
     a = np.asarray(a)
     b = np.asarray(b)
-    print(a)
-    print(b)
     if show:
         plt.figure()
         x,y = signal.freqz(b,a)
         plt.plot(x, 20*np.log10(abs(y)))
+        plt.title("Gain de la réponse en fréquence")
+        plt.xlabel("Multiple fréquence gauchie (pi)")
+        plt.ylabel("Gain (dB)")
         plt.show()
+
         print(a)
         print(b)
         zplane.zplane(b,a)
@@ -135,7 +139,7 @@ def noise_removal_bilinear(source_image, npy=True, show=False):
 
     if show:
         plt.figure()
-        plt.figure()
+        plt.title('Image débruitée - méthode bilinéaire')
         plt.imshow(output, cmap='gray')
         plt.show()
     return output
@@ -157,13 +161,19 @@ def noise_removal_cheat(source_image, npy=True, show=False):
         plt.figure()
         x, y = signal.freqz(b, a)
         plt.plot(x, 20 * np.log10(abs(y)))
+        plt.title("Gain de la réponse en fréquence")
+        plt.xlabel("Multiple fréquence gauchie (pi)")
+        plt.ylabel("Gain (dB)")
         plt.show()
 
+        print(a)
+        print(b)
+        zplane.zplane(b, a)
     output = signal.lfilter(b, a, source_image)
 
     if show:
         plt.figure()
-        plt.figure()
+        plt.title('Image débruitée - méthode butterworth')
         plt.imshow(output, cmap='gray')
         plt.show()
     return output
@@ -205,9 +215,10 @@ def decompress(cm_img, eig_vectors, pourcent=0.0, show=False):
 if __name__ == "__main__":
 
     # Cleaning up image
-    cleaned = remove_aberrations(Poles,Zeros,'pictures/image_complete.npy', npy=True)
+    cleaned = remove_aberrations(Poles,Zeros,'pictures/image_complete.npy', npy=True, show=True)
     turned = rotate_image(cleaned, npy=False, show=True)
     final = noise_removal_bilinear(turned,npy=False, show=True)
+    noise_removal_cheat(turned, npy=False, show=True)
     imageio.imwrite('pictures/main/cleaned_up.jpg', final)
 
     compressed50, vectors50 = compress(final, pourcent=0.5, show=False)
