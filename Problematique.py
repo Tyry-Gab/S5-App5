@@ -86,6 +86,13 @@ def rotate_image(source_image, npy=False, png=False, show=False):
     if show:
         plt.figure()
         plt.gray()
+        plt.title('Image avant rotation')
+        plt.imshow(source_image)
+        plt.show()
+
+        plt.figure()
+        plt.gray()
+        plt.title('Image après rotation (90 degrés vers la droite)')
         plt.imshow(new_img)
         plt.show()
 
@@ -184,10 +191,11 @@ def compress(image_array, show=False, pourcent=0.5):
     return compressed_img, eigenvectors
 
 
-def decompress(cm_img, eig_vectors, show=False):
+def decompress(cm_img, eig_vectors, pourcent=0.0, show=False):
     decompressed = np.linalg.inv(eig_vectors).dot(cm_img)
     if show:
         plt.figure()
+        plt.title('Image compressée à {0}%'.format(100*pourcent))
         plt.imshow(decompressed, cmap='gray')
         plt.show()
     return decompressed
@@ -198,15 +206,18 @@ if __name__ == "__main__":
 
     # Cleaning up image
     cleaned = remove_aberrations(Poles,Zeros,'pictures/image_complete.npy', npy=True)
-    turned = rotate_image(cleaned, npy=False)
+    turned = rotate_image(cleaned, npy=False, show=True)
     final = noise_removal_bilinear(turned,npy=False, show=True)
     imageio.imwrite('pictures/main/cleaned_up.jpg', final)
 
-    compressed, vectors = compress(final, pourcent=0.5, show=True)
-    guess_whos_back = decompress(compressed, vectors, show=True)
+    compressed50, vectors50 = compress(final, pourcent=0.5, show=False)
+    compressed75, vectors75 = compress(final, pourcent=0.75, show=False)
+    guess_whos_back50 = decompress(compressed50, vectors50, pourcent=0.5, show=True)
+    guess_whos_back75 = decompress(compressed75, vectors75, pourcent=0.75, show=True)
 
     turned_goldhill = rotate_image('pictures/goldhill_rotate_source.png', png=True)
     imageio.imwrite('pictures/main/goldhill_rotate_right.jpg', turned_goldhill)
+    imageio.imwrite('pictures/main/miaow_compressed50.jpg', guess_whos_back50)
 
 
 
