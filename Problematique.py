@@ -6,6 +6,8 @@ from scipy import signal
 import zplane
 from PIL import Image
 import scipy.misc
+import imageio
+
 
 # Getting poles and zeros from aberrations transfer function
 ########################################################################################################################
@@ -57,29 +59,26 @@ def remove_aberrations(poles,zeros, source_image, npy=False, show=False):
     return output
 
 
-def rotate_image(source_image, npy=False, show=False):
+def rotate_image(source_image, npy=False, png=False, show=False):
     img = np.empty(shape=[0,0])
     if npy:
         img = np.load(source_image)
+    elif png:
+        img = np.array(Image.open(source_image).convert('L'))
     else:
         img = source_image
 
     new_img = np.empty(shape=(img.shape[1], img.shape[0]))
 
     rot_angle = -np.pi/2
-
     rot_mat = np.array(
         [[np.cos(rot_angle), -np.sin(rot_angle)],
         [np.sin(rot_angle), np.cos(rot_angle)]])
-
     x = 1-img.shape[0]
     for row in img:
         y = 0
         for elem in row:
             new_index = rot_mat.dot(np.array([[x],[y]]))
-            # For now, only gray picture will be used (we assume input and output are gray)
-            if type(elem) is np.ndarray:
-                elem = elem[0]
             new_img[int(round(new_index[0][0]))][int(round(new_index[1][0]))] = elem
             y += 1
         x += 1
@@ -204,10 +203,13 @@ if __name__ == "__main__":
     cleaned = remove_aberrations(Poles,Zeros,'pictures/image_complete.npy', npy=True)
     turned = rotate_image(cleaned, npy=False)
     final = noise_removal_bilinear(turned,npy=False, show=True)
-    scipy.misc.imsave('pictures/main/cleaned_up.jpg', final)
+    imageio.imwrite('pictures/main/cleaned_up.jpg', final)
 
     compressed, vectors = compress(final, N=26.420)
     guess_whos_back = decompress(compressed, vectors, show=True)
+
+    turned_goldhill = rotate_image('pictures/goldhill_rotate_source.png', png=True)
+    imageio.imwrite('pictures/main/goldhill_rotate_right.jpg', turned_goldhill)
 
 
 
