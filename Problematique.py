@@ -215,6 +215,11 @@ def decompress(cm_img, eig_vectors, pourcent=0.0, show=False):
 if __name__ == "__main__":
 
     # Cleaning up image
+    plt.figure()
+    abb = np.load('pictures/image_complete.npy')
+    plt.title('Image avec aberrations')
+    plt.imshow(abb, cmap='gray')
+    plt.show()
     cleaned = remove_aberrations(Poles,Zeros,'pictures/image_complete.npy', npy=True, show=True)
     turned = rotate_image(cleaned, npy=False, show=True)
     final = noise_removal_bilinear(turned,npy=False, show=True)
