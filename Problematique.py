@@ -162,7 +162,7 @@ def noise_removal_cheat(source_image, npy=True, show=False):
     return output
 
 
-def compress(image_array, show=False, N=69.420):
+def compress(image_array, show=False, pourcent=0.5):
     covariance_matrix = np.cov(image_array)
     eigenvalues, eigenvectors = np.linalg.eig(covariance_matrix)
     compressed_img = eigenvectors.dot(image_array)
@@ -172,17 +172,14 @@ def compress(image_array, show=False, N=69.420):
         plt.imshow(compressed_img, cmap='gray')
         plt.show()
 
+    k = int(round(pourcent * compressed_img.shape[0]))
+    abs100_compressed_image = 100*np.abs(compressed_img)
+    ind = np.argpartition(abs100_compressed_image.T[0], k)[:k]
     i = 0
-    threshold = N
-    counter = 0
-    for line in compressed_img:
-        mean = np.average(100*np.abs(compressed_img[i]))
-        if mean <= threshold:
-            line.fill(0)
-            counter += 1
+    for index in ind:
+        compressed_img[index].fill(0)
         i += 1
-    if show:
-        print("There were {0} lines removed".format(counter))
+    print("There were {0} lines removed".format(i))
 
     return compressed_img, eigenvectors
 
@@ -205,7 +202,7 @@ if __name__ == "__main__":
     final = noise_removal_bilinear(turned,npy=False, show=True)
     imageio.imwrite('pictures/main/cleaned_up.jpg', final)
 
-    compressed, vectors = compress(final, N=26.420)
+    compressed, vectors = compress(final, pourcent=0.5, show=True)
     guess_whos_back = decompress(compressed, vectors, show=True)
 
     turned_goldhill = rotate_image('pictures/goldhill_rotate_source.png', png=True)
